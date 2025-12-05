@@ -241,7 +241,7 @@ async function startHeartbeat() {
         }, delay);
     }
     
-    async function performHeartbeat() {
+    async function performHeartbeat(retryCount = 0) {
         // Debug: Check video element
         if (!videoElement) {
             console.error('❌ Heartbeat: videoElement is null');
@@ -320,7 +320,15 @@ async function startHeartbeat() {
             
         } catch (error) {
             console.error('💔 Heartbeat failed:', error);
-            console.error('   Make sure backend is running');
+            
+            // Retry logic for Render free tier spin-up
+            if (retryCount < 3) {
+                console.warn(`⚠️ Retrying in 10 seconds... (attempt ${retryCount + 1}/3)`);
+                setTimeout(() => performHeartbeat(retryCount + 1), 10000);
+            } else {
+                console.error('❌ Backend not responding after 3 retries. Service may be down.');
+                console.error('   Render free tier spins down after 15 min - first request takes 30-60s to wake up');
+            }
         }
     }
     
