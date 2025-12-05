@@ -20,9 +20,7 @@ window.addEventListener('load', () => {
             const bgAudio = new Audio('assets/bg.mp3');
             bgAudio.loop = true;
             bgAudio.volume = 0.3;
-            bgAudio.play().then(() => {
-                console.log('🔊 Background music started');
-            }).catch(error => {
+            bgAudio.play().catch(error => {
                 console.error('❌ Failed to play bg.mp3:', error);
             });
             window.bgAudio = bgAudio;
@@ -136,8 +134,6 @@ async function startVisionCalibration() {
         
         bootCamera.width = video.videoWidth || 640;
         bootCamera.height = video.videoHeight || 480;
-        
-        console.log(`📹 Boot camera ready: ${bootCamera.width}x${bootCamera.height}`);
         
         // Flash the camera feed
         for (let i = 0; i < 5; i++) {

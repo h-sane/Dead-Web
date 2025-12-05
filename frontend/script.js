@@ -50,8 +50,6 @@ async function initAudioTrap() {
         isMonitoring = true;
         isActivated = true;
         monitorVolume();
-        
-        console.log('Audio trap activated... Listening for sounds...');
     } catch (error) {
         console.error('Microphone access denied:', error);
     }
@@ -75,10 +73,7 @@ function monitorVolume() {
     // Store current volume for ghost polling
     currentVolume = average;
     
-    // Only log occasionally to reduce console spam
-    if (Math.random() < 0.1) {
-        console.log('Volume:', Math.round(average));
-    }
+    // Volume monitoring (silent)
     
     // Visual indicator - flash green border when detecting sound
     if (average > 10) {
@@ -96,7 +91,6 @@ function monitorVolume() {
     if (average > THRESHOLD && (now - lastJumpscareTime) > COOLDOWN) {
         lastJumpscareTime = now;
         jumpscare();
-        console.log('🔊 LOUD NOISE DETECTED! Volume:', Math.round(average));
     }
     
     // Use setInterval instead of requestAnimationFrame for more consistent timing
@@ -161,11 +155,7 @@ async function initVision() {
         // TASK 2: Use global stream
         videoElement.srcObject = window.globalSensorStream;
         
-        // Wait for video to be ready
-        videoElement.onloadedmetadata = () => {
-            console.log('✅ Vision activated... Watching you...');
-            console.log(`   Video size: ${videoElement.videoWidth}x${videoElement.videoHeight}`);
-        };
+        // Wait for video to be ready (silent surveillance)
         
         // Start capturing snapshots every 5 seconds
         setInterval(captureSnapshot, 5000);
@@ -197,9 +187,7 @@ function captureSnapshot() {
     ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
     
     currentGhostVision = canvas.toDataURL('image/jpeg', 0.8);
-    
-    // Debug: Log snapshot size
-    console.log(`📸 Snapshot captured: ${canvas.width}x${canvas.height}, Size: ${(currentGhostVision.length / 1024).toFixed(1)}KB`);
+    // Snapshot captured (silent)
 }
 
 // Check if backend is reachable
@@ -207,8 +195,6 @@ async function checkBackendHealth() {
     try {
         const response = await fetch(`${window.location.origin}/health`, { method: 'GET' });
         if (response.ok) {
-            const data = await response.json();
-            console.log('✅ Backend is alive:', data);
             return true;
         }
     } catch (error) {
@@ -220,7 +206,6 @@ async function checkBackendHealth() {
 // ISSUE 5 FIX: CENTRAL HEARTBEAT - Gemini controls everything
 // With random delays for startle effect
 async function startHeartbeat() {
-    console.log('💓 Heartbeat system starting...');
     
     // Check backend health first
     const backendReady = await checkBackendHealth();
@@ -233,7 +218,6 @@ async function startHeartbeat() {
     async function scheduleNextHeartbeat() {
         // Random delay between 30-60 seconds (longer responses need more time)
         const delay = 30000 + Math.random() * 30000;
-        console.log(`⏰ Next heartbeat in ${(delay / 1000).toFixed(1)} seconds`);
         
         setTimeout(async () => {
             await performHeartbeat();
@@ -259,8 +243,6 @@ async function startHeartbeat() {
             return;
         }
         
-        console.log('💓 Heartbeat tick - capturing frame...');
-        
         // Capture frame to base64 with good resolution
         const canvas = document.createElement('canvas');
         canvas.width = Math.max(videoElement.videoWidth, 640);
@@ -269,8 +251,6 @@ async function startHeartbeat() {
         ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
         const imageBase64 = canvas.toDataURL('image/jpeg', 0.7);
         
-        console.log(`📸 Frame captured: ${canvas.width}x${canvas.height}, Size: ${(imageBase64.length / 1024).toFixed(1)}KB`);
-        
         // Get system data
         const battery = lifeForce || 1.0;
         const platform = navigator.platform || 'Unknown';
@@ -278,8 +258,6 @@ async function startHeartbeat() {
         // Get current URL from address bar
         const addressInput = document.querySelector('.address-bar input');
         const currentUrl = addressInput ? addressInput.value : 'unknown';
-        
-        console.log(`📤 Sending heartbeat (Battery: ${(battery*100).toFixed(0)}%, URL: ${currentUrl})`);
         
         try {
             const response = await fetch(`${window.location.origin}/api/heartbeat`, {
@@ -301,16 +279,11 @@ async function startHeartbeat() {
             }
             
             const data = await response.json();
-            console.log('📥 Heartbeat response:', data);
             
             // Speak the AI's response
             if (data.voice_text) {
-                console.log(`🗣️ Speaking: "${data.voice_text}"`);
                 speakPossessed(data.voice_text);
                 displayStatusMessage(data.voice_text);
-                console.log(`🧠 Gemini [Level ${data.haunt_level}]: ${data.voice_text}`);
-            } else {
-                console.warn('⚠️ No voice_text in response');
             }
             
             // ISSUE 3 FIX: Trigger transient glitch based on intensity
@@ -333,10 +306,8 @@ async function startHeartbeat() {
     }
     
     // Wait longer before first heartbeat to ensure backend is ready
-    console.log('💓 Central heartbeat will start in 10 seconds...');
     setTimeout(() => {
         scheduleNextHeartbeat();
-        console.log('💓 Central heartbeat activated - Gemini is watching with random intervals...');
     }, 10000); // Wait 10 seconds before first heartbeat
 }
 
@@ -364,12 +335,9 @@ async function initBatteryMonitor() {
         const battery = await navigator.getBattery();
         lifeForce = battery.level;
         
-        console.log('Life force detected:', Math.round(lifeForce * 100) + '%');
-        
         // Update when battery changes
         battery.addEventListener('levelchange', () => {
             lifeForce = battery.level;
-            console.log('Life force draining:', Math.round(lifeForce * 100) + '%');
         });
     } catch (error) {
         console.error('Battery access denied:', error);
@@ -659,7 +627,6 @@ async function pollGhost() {
 
 // TASK 3: UPGRADED - Dual Voice for LONG psychological horror
 function speakPossessed(text) {
-    console.log('🗣️ Possessed voice speaking with demonic overlay...');
     
     // Get available voices
     const voices = window.speechSynthesis.getVoices();
@@ -729,7 +696,6 @@ function speakPossessed(text) {
         } catch (e) {
             // Already stopped
         }
-        console.log('✅ Possessed voice finished');
     };
     
     // Safety: Stop audio after max 30 seconds
@@ -741,8 +707,6 @@ function speakPossessed(text) {
             // Already stopped
         }
     }, 30000);
-    
-    console.log('🗣️ Possessed voice speaking with demonic overlay...');
 }
 
 // Type message slowly into spirit console
@@ -871,7 +835,6 @@ function wireResurrectionUI() {
     // TEST HEARTBEAT BUTTON (for debugging)
     if (testHeartbeatBtn) {
         testHeartbeatBtn.addEventListener('click', async () => {
-            console.log('🧪 Manual heartbeat test triggered');
             await testHeartbeatManually();
         });
     }
@@ -896,7 +859,6 @@ function initAddressBar() {
                 url = 'http://' + url;
             }
             
-            console.log(`🌐 Attempting to resurrect: ${url}`);
             speakPossessed('Summoning the dead web...');
             
             await resurrectDeadSite(url);
@@ -953,7 +915,6 @@ function showPossessedDialog(title, content) {
 
 // Manual heartbeat test function
 async function testHeartbeatManually() {
-    console.log('🧪 Testing heartbeat manually...');
     
     if (!videoElement || !videoElement.videoWidth) {
         console.error('❌ Video element not ready');
@@ -974,8 +935,6 @@ async function testHeartbeatManually() {
     const addressInput = document.querySelector('.address-bar input');
     const currentUrl = addressInput ? addressInput.value : 'unknown';
     
-    console.log('📤 Sending test heartbeat...');
-    
     try {
         const response = await fetch('/api/heartbeat', {
             method: 'POST',
@@ -989,10 +948,8 @@ async function testHeartbeatManually() {
         });
         
         const data = await response.json();
-        console.log('📥 Test response:', data);
         
         if (data.voice_text) {
-            console.log(`🗣️ Speaking: "${data.voice_text}"`);
             speakPossessed(data.voice_text);
             alert(`Gemini says: "${data.voice_text}"`);
         } else {
@@ -1014,11 +971,8 @@ async function resurrectDeadSite(url, timestamp = "1998") {
     try {
         typeMessage('Contacting the dead web...');
         
-        console.log(`🔍 Fetching: ${url} (timestamp: ${timestamp})`);
-        
         // CRITICAL FIX: Use absolute URL to avoid base tag interference from resurrected pages
         const apiUrl = `${window.location.origin}/api/browse`;
-        console.log(`📡 API URL: ${apiUrl}`);
         
         const response = await fetch(apiUrl, {
             method: 'POST',
@@ -1031,13 +985,9 @@ async function resurrectDeadSite(url, timestamp = "1998") {
             })
         });
         
-        console.log(`📡 Response status: ${response.status}`);
-        
         const data = await response.json();
-        console.log('📦 Response data:', data);
         
         if (data.error) {
-            console.error(`❌ Backend error: ${data.error}`);
             typeMessage(`Failed to resurrect: ${data.error}`);
             speakPossessed('The dead refuse to speak');
             return;
@@ -1047,13 +997,11 @@ async function resurrectDeadSite(url, timestamp = "1998") {
         const contentArea = document.querySelector('.content');
         if (contentArea) {
             if (!data.html || data.html.trim().length === 0) {
-                console.error('❌ Received empty HTML from backend');
                 typeMessage('The dead are silent...');
                 speakPossessed('Nothing remains');
                 return;
             }
             
-            console.log(`📝 Injecting HTML (${data.html.length} chars)...`);
             contentArea.innerHTML = data.html;
             
             // Store original content for refresh
@@ -1066,11 +1014,8 @@ async function resurrectDeadSite(url, timestamp = "1998") {
                 addressInput.value = url;
             }
             
-            console.log('✅ HTML injected successfully');
             typeMessage(`Resurrected from ${data.timestamp}`);
             speakPossessed('The dead have risen');
-        } else {
-            console.error('❌ Content area not found!');
         }
         
     } catch (error) {
