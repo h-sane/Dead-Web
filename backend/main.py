@@ -508,13 +508,51 @@ async def browse_dead_web(data: BrowseData):
         }
         """
         
-        # TASK 4: INJECT BASE TAG (Critical fix for relative URLs) - FORCE HTTPS
-        final_wayback_url_https = final_wayback_url.replace('http://', 'https://')
-        base_tag = soup.new_tag('base', href=final_wayback_url_https)
+        # REMOVED BASE TAG - It was causing unwanted redirects
+        # Instead, we'll let relative URLs break (they're dead anyway)
         
-        # INJECT OUR HAUNTING SCRIPTS
+        # INJECT OUR HAUNTING SCRIPTS WITH AGGRESSIVE LINK BLOCKING
         haunting_script = soup.new_tag('script')
         haunting_script.string = """
+        // CRITICAL: Block ALL navigation attempts
+        (function() {
+            // Prevent all clicks on links
+            document.addEventListener('click', function(e) {
+                let target = e.target;
+                // Traverse up to find if we clicked on or inside a link
+                while (target && target !== document) {
+                    if (target.tagName === 'A') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        console.log('🚫 Navigation blocked - you cannot escape');
+                        return false;
+                    }
+                    target = target.parentElement;
+                }
+            }, true); // Use capture phase to catch it early
+            
+            // Block form submissions
+            document.addEventListener('submit', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🚫 Form submission blocked');
+                return false;
+            }, true);
+            
+            // Override window.location
+            const originalLocation = window.location;
+            Object.defineProperty(window, 'location', {
+                get: function() { return originalLocation; },
+                set: function(val) { 
+                    console.log('🚫 Location change blocked:', val);
+                    return originalLocation;
+                }
+            });
+            
+            console.log('🔒 All navigation locked - you are trapped here');
+        })();
+        
         // Subliminal Messages
         console.log('%c⚠️ Connection established with the void...', 'color: red; font-size: 14px;');
         setTimeout(() => console.log('%cDon\\'t trust the text.', 'color: #666; font-style: italic;'), 3000);
@@ -525,18 +563,16 @@ async def browse_dead_web(data: BrowseData):
         style_tag = soup.new_tag('link', rel='stylesheet', href='style.css')
         script_tag = soup.new_tag('script', src='script.js')
         
-        # Inject into head (BASE TAG FIRST - Critical for relative URLs)
+        # Inject into head (NO BASE TAG - prevents redirects)
         if soup.head:
-            soup.head.insert(0, base_tag)  # Base tag must be first
-            soup.head.append(disable_links_style)  # ISSUE 2 FIX: Disable links
-            soup.head.append(haunting_script)
+            soup.head.insert(0, haunting_script)  # Navigation blocker FIRST
+            soup.head.append(disable_links_style)  # CSS link disable
             soup.head.append(style_tag)
             soup.head.append(script_tag)
         else:
             head = soup.new_tag('head')
-            head.append(base_tag)
-            head.append(disable_links_style)  # ISSUE 2 FIX: Disable links
-            head.append(haunting_script)
+            head.append(haunting_script)  # Navigation blocker FIRST
+            head.append(disable_links_style)  # CSS link disable
             head.append(style_tag)
             head.append(script_tag)
             if soup.html:
