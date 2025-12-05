@@ -521,39 +521,14 @@ async def browse_dead_web(data: BrowseData):
                         tag[attr] = url.replace('http://', 'https://', 1)
                         print(f"   🔒 Upgraded {attr}: {tag[attr][:50]}...")
         
-        # ISSUE 2 FIX: DISABLE ALL HYPERLINKS + FORCE VISIBILITY
+        # ISSUE 2 FIX: DISABLE ALL HYPERLINKS (pointer-events: none)
         disable_links_style = soup.new_tag('style')
         disable_links_style.string = """
-        /* Disable all links */
         a, a:link, a:visited, a:hover, a:active {
             pointer-events: none !important;
             cursor: default !important;
             text-decoration: none !important;
             color: inherit !important;
-        }
-        
-        /* Force content to be visible - fixes white-on-white or hidden content */
-        body {
-            background-color: #000 !important;
-            color: #0f0 !important;
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-        }
-        
-        /* Make all text visible */
-        * {
-            visibility: visible !important;
-            opacity: 1 !important;
-        }
-        
-        /* Override any hidden elements */
-        [style*="display: none"],
-        [style*="display:none"],
-        [style*="visibility: hidden"],
-        [style*="visibility:hidden"] {
-            display: block !important;
-            visibility: visible !important;
         }
         """
         
