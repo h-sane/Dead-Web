@@ -366,7 +366,8 @@ async def browse_dead_web(data: BrowseData):
     try:
         # Query Wayback Machine API for snapshot with custom timestamp
         timestamp = data.timestamp if hasattr(data, 'timestamp') else "1998"
-        wayback_api = f"http://archive.org/wayback/available?url={target_url}&timestamp={timestamp}"
+        # Use HTTPS to avoid mixed content errors on deployed site
+        wayback_api = f"https://archive.org/wayback/available?url={target_url}&timestamp={timestamp}"
         response = requests.get(wayback_api, timeout=10, allow_redirects=True)
         wayback_data = response.json()
         
