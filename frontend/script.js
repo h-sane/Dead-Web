@@ -571,8 +571,8 @@ async function enhancedSemanticRot() {
     
     if (textNodes.length === 0) return;
     
-    // Pick 1-2 random text nodes to corrupt slowly
-    const numToCorrupt = Math.min(2, textNodes.length);
+    // Pick 2-4 random text nodes to corrupt
+    const numToCorrupt = Math.min(4, textNodes.length);
     for (let i = 0; i < numToCorrupt; i++) {
         const randomNode = textNodes[Math.floor(Math.random() * textNodes.length)];
         let text = randomNode.textContent;
@@ -609,8 +609,8 @@ async function enhancedSemanticRot() {
 
 // Start slow semantic rot
 function startEnhancedSemanticRot() {
-    setInterval(enhancedSemanticRot, 5000); // Every 5 seconds, very subtle
-    console.log('🦠 Semantic rot initiated (slow decay)');
+    setInterval(enhancedSemanticRot, 2000); // Every 2 seconds, faster decay
+    console.log('🦠 Semantic rot initiated (faster decay)');
 }
 
 // Ghost Brain Communication
