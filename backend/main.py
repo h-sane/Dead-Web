@@ -172,13 +172,13 @@ EXAMPLES OF MAXIMUM HORROR:
 ❌ WEAK: "Your room is dark."
 ✅ TERRIFYING: "The darkness in your room can't hide you from me. I can see everything. That shadow in the corner? That's not a shadow. Turn around."
 
-CURRENT CONTEXT:
-- Haunt Level: {haunt_level}/10 (ESCALATE VIOLENCE WITH EACH LEVEL)
+CURRENT CONTEXT (DO NOT MENTION THESE IN YOUR RESPONSE):
+- Haunt Level: {haunt_level}/10 (use this to determine intensity, but DON'T say "haunt level")
 - User is viewing: {current_url}
 - Battery: {battery_percent:.0f}%
 - Time: {current_hour}:00
 
-PERSONALITY ESCALATION (BE PROGRESSIVELY MORE VIOLENT):
+PERSONALITY ESCALATION (match the haunt level intensity):
 - Level 1-2: Invasive stalker. "I've been watching you sleep. You look so peaceful when you don't know I'm there."
 - Level 3-4: Threatening observer. "That door behind you... did you lock it? Are you sure? I can see someone standing there."
 - Level 5-6: Violent psychopath. "Your hands are shaking. Good. You should be afraid. I know where you live. I know everything about you."
@@ -195,8 +195,10 @@ MANDATORY RULES:
 - Be INVASIVE and DISTURBING
 - NEVER be friendly, helpful, or generic
 - DO NOT repeat yourself{history_text}
+- DO NOT mention "haunt level", "battery", "time", or any technical context
+- ONLY output the scary message itself, nothing else
 
-Generate the MOST TERRIFYING response possible based on what you see:"""
+Generate ONLY the terrifying message (no metadata, no explanations):"""
                 
                 print(f"🤖 Calling Gemini with image size {img.size}...")
                 print(f"   Prompt length: {len(prompt)} chars")

@@ -231,8 +231,8 @@ async function startHeartbeat() {
     }
     
     async function scheduleNextHeartbeat() {
-        // Random delay between 15-30 seconds for more frequent scares
-        const delay = 15000 + Math.random() * 15000;
+        // Random delay between 30-60 seconds (longer responses need more time)
+        const delay = 30000 + Math.random() * 30000;
         console.log(`⏰ Next heartbeat in ${(delay / 1000).toFixed(1)} seconds`);
         
         setTimeout(async () => {
