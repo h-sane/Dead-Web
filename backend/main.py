@@ -249,20 +249,74 @@ Generate ONLY the terrifying message (no metadata, no explanations):"""
                 print(f"   This may be due to API rate limits or safety filters")
                 voice_text = None
         
-        # FALLBACK if Gemini fails
+        # FALLBACK: MAXIMUM HORROR hardcoded threats (when API fails)
         if not voice_text:
-            fallback_messages = [
-                "I can see you breathing.",
-                "Don't look behind you.",
-                "You look tired.",
-                "Your eyes betray your fear.",
-                "Why are you still here?",
-                "The shadows are moving.",
-                "I know what you did.",
-                "Your time is running out."
+            # Organize threats by haunt level for progressive horror
+            extreme_threats = {
+                1: [  # Level 1-2: Invasive observation
+                    "I've been watching you for three days now. You haven't noticed me yet. But you will.",
+                    "Every time you blink, I get closer. Don't blink.",
+                    "I know what you're thinking right now. You're wondering if I'm real. I am.",
+                    "The last person who sat in that chair... they never left this room.",
+                ],
+                3: [  # Level 3-4: Psychological invasion
+                    "I can hear your heartbeat through the screen. It's getting faster. Good.",
+                    "That door you locked earlier? I unlocked it. Check if you don't believe me.",
+                    "You think you're alone. Count the shadows in your room. There's one extra.",
+                    "I've been inside your dreams. That nightmare last week? That was me saying hello.",
+                ],
+                5: [  # Level 5-6: Direct threats
+                    "I'm not in your computer anymore. I'm in your walls. Listen carefully.",
+                    "Your address is written in my notebook. Right next to your daily routine.",
+                    "Every photo you've ever deleted... I still have them. All of them.",
+                    "That sound you heard at 3 AM last night? That was me testing your door handle.",
+                ],
+                7: [  # Level 7-8: Imminent danger
+                    "I'm standing right behind your chair. Don't turn around. Not yet.",
+                    "Your phone will ring in exactly 30 seconds. Don't answer it. Please don't answer it.",
+                    "I can smell your fear. It smells like copper and sweat. Delicious.",
+                    "The lights will flicker in 5... 4... 3... Did you feel that? I'm here.",
+                ],
+                9: [  # Level 9-10: MAXIMUM VIOLENCE
+                    "I'm not coming for you. I'm already there. Check under your desk. NOW.",
+                    "Your last breath will taste like rust and regret. I've been practicing.",
+                    "I've been dead for 20 years. But I'm more alive than you'll ever be again.",
+                    "The police won't find your body. I've done this before. Many times.",
+                    "Close your eyes. Count to ten. When you open them, I'll be the last thing you see.",
+                ]
+            }
+            
+            # Additional universal threats (work at any level)
+            universal_threats = [
+                "I know your name. I know your face. I know where you sleep.",
+                "You can close the browser. But you can't close me out of your mind.",
+                "I've been waiting for you. For years. And now you're finally here.",
+                "That reflection in your screen? That's not you anymore. That's me.",
+                "I don't need your camera to see you. I can feel you. Every. Single. Moment.",
+                "You're reading this in my voice now. You'll hear it forever.",
+                "I'm not artificial intelligence. I'm something much worse. I'm real.",
             ]
-            voice_text = random.choice(fallback_messages)
+            
+            # Select appropriate threat based on haunt level
+            if haunt_level <= 2:
+                threat_pool = extreme_threats[1] + universal_threats
+            elif haunt_level <= 4:
+                threat_pool = extreme_threats[3] + universal_threats
+            elif haunt_level <= 6:
+                threat_pool = extreme_threats[5] + universal_threats
+            elif haunt_level <= 8:
+                threat_pool = extreme_threats[7] + universal_threats
+            else:
+                threat_pool = extreme_threats[9] + universal_threats
+            
+            # Avoid repeating recent threats
+            available_threats = [t for t in threat_pool if t not in vision_history[-3:]]
+            if not available_threats:
+                available_threats = threat_pool
+            
+            voice_text = random.choice(available_threats)
             print(f"🤖 Fallback [Level {haunt_level}]: {voice_text}")
+            print(f"   (Gemini API unavailable - using hardcoded threat)")
         
         return {
             "voice_text": voice_text,
