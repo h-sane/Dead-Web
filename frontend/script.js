@@ -202,10 +202,33 @@ function captureSnapshot() {
     console.log(`📸 Snapshot captured: ${canvas.width}x${canvas.height}, Size: ${(currentGhostVision.length / 1024).toFixed(1)}KB`);
 }
 
+// Check if backend is reachable
+async function checkBackendHealth() {
+    try {
+        const response = await fetch('/health', { method: 'GET' });
+        if (response.ok) {
+            const data = await response.json();
+            console.log('✅ Backend is alive:', data);
+            return true;
+        }
+    } catch (error) {
+        console.error('❌ Backend health check failed:', error);
+    }
+    return false;
+}
+
 // ISSUE 5 FIX: CENTRAL HEARTBEAT - Gemini controls everything
 // With random delays for startle effect
 async function startHeartbeat() {
     console.log('💓 Heartbeat system starting...');
+    
+    // Check backend health first
+    const backendReady = await checkBackendHealth();
+    if (!backendReady) {
+        console.warn('⚠️ Backend not ready, will retry in 30 seconds...');
+        setTimeout(startHeartbeat, 30000);
+        return;
+    }
     
     async function scheduleNextHeartbeat() {
         // Random delay between 30-60 seconds for startle effect
@@ -301,10 +324,12 @@ async function startHeartbeat() {
         }
     }
     
-    // Start the first heartbeat after initial delay
-    scheduleNextHeartbeat();
-    
-    console.log('💓 Central heartbeat activated - Gemini is watching with random intervals...');
+    // Wait longer before first heartbeat to ensure backend is ready
+    console.log('💓 Central heartbeat will start in 10 seconds...');
+    setTimeout(() => {
+        scheduleNextHeartbeat();
+        console.log('💓 Central heartbeat activated - Gemini is watching with random intervals...');
+    }, 10000); // Wait 10 seconds before first heartbeat
 }
 
 // Display message in status bar

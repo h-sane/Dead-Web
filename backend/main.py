@@ -78,6 +78,16 @@ async def root():
     """Serve the main HTML page"""
     return FileResponse('frontend/index.html')
 
+# Health check endpoint
+@app.get("/health")
+async def health_check():
+    """Health check for deployment monitoring"""
+    return {
+        "status": "alive",
+        "gemini_configured": bool(GEMINI_API_KEY),
+        "haunt_level": haunt_level
+    }
+
 class PossessionData(BaseModel):
     battery: float
     volume: float
