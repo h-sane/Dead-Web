@@ -490,12 +490,22 @@ async def browse_dead_web(data: BrowseData):
         for script in soup.find_all('script', src=lambda x: x and 'archive.org' in str(x)):
             script.decompose()
         
-        # UPGRADE ALL REMAINING HTTP LINKS TO HTTPS
+        # CRITICAL FIX: Convert relative Web Archive URLs to absolute HTTPS URLs
+        # Without base tag, relative URLs like "/web/..." try to load from OUR domain
+        archive_base = 'https://web.archive.org'
+        
         for tag in soup.find_all(['img', 'link', 'script', 'iframe']):
             for attr in ['src', 'href']:
-                if tag.has_attr(attr) and tag[attr].startswith('http://'):
-                    tag[attr] = tag[attr].replace('http://', 'https://', 1)
-                    print(f"   🔒 Upgraded {attr}: {tag[attr][:50]}...")
+                if tag.has_attr(attr):
+                    url = tag[attr]
+                    # Fix relative Web Archive URLs
+                    if url.startswith('/web/'):
+                        tag[attr] = archive_base + url
+                        print(f"   🔧 Fixed relative URL: {tag[attr][:60]}...")
+                    # Upgrade HTTP to HTTPS
+                    elif url.startswith('http://'):
+                        tag[attr] = url.replace('http://', 'https://', 1)
+                        print(f"   🔒 Upgraded {attr}: {tag[attr][:50]}...")
         
         # ISSUE 2 FIX: DISABLE ALL HYPERLINKS (pointer-events: none)
         disable_links_style = soup.new_tag('style')
