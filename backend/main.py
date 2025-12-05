@@ -490,6 +490,20 @@ async def browse_dead_web(data: BrowseData):
         for script in soup.find_all('script', src=lambda x: x and 'archive.org' in str(x)):
             script.decompose()
         
+        # CRITICAL: Remove meta refresh tags that cause redirects
+        for meta in soup.find_all('meta'):
+            if meta.get('http-equiv', '').lower() == 'refresh':
+                print(f"   🚫 Removed meta refresh: {meta.get('content', '')}")
+                meta.decompose()
+        
+        # Remove JavaScript redirects (window.location, location.href, etc.)
+        for script in soup.find_all('script'):
+            if script.string:
+                script_content = script.string.lower()
+                if any(keyword in script_content for keyword in ['window.location', 'location.href', 'location.replace', 'location.assign']):
+                    print(f"   🚫 Removed redirect script")
+                    script.decompose()
+        
         # CRITICAL FIX: Convert relative Web Archive URLs to absolute HTTPS URLs
         # Without base tag, relative URLs like "/web/..." try to load from OUR domain
         archive_base = 'https://web.archive.org'
