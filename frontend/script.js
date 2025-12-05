@@ -1040,6 +1040,14 @@ async function resurrectDeadSite(url, timestamp = "1998") {
         // Inject the resurrected HTML into the content area
         const contentArea = document.querySelector('.content');
         if (contentArea) {
+            if (!data.html || data.html.trim().length === 0) {
+                console.error('❌ Received empty HTML from backend');
+                typeMessage('The dead are silent...');
+                speakPossessed('Nothing remains');
+                return;
+            }
+            
+            console.log(`📝 Injecting HTML (${data.html.length} chars)...`);
             contentArea.innerHTML = data.html;
             
             // Store original content for refresh
@@ -1052,8 +1060,11 @@ async function resurrectDeadSite(url, timestamp = "1998") {
                 addressInput.value = url;
             }
             
+            console.log('✅ HTML injected successfully');
             typeMessage(`Resurrected from ${data.timestamp}`);
             speakPossessed('The dead have risen');
+        } else {
+            console.error('❌ Content area not found!');
         }
         
     } catch (error) {
