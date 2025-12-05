@@ -32,9 +32,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount static files (frontend)
+# Mount static files (frontend) - includes assets subfolder
 app.mount("/static", StaticFiles(directory="frontend"), name="static")
-app.mount("/assets", StaticFiles(directory="assets"), name="assets")
+
+# Mount assets directly for easier access (frontend/assets -> /assets)
+assets_path = os.path.join("frontend", "assets")
+if os.path.exists(assets_path):
+    app.mount("/assets", StaticFiles(directory=assets_path), name="assets")
+else:
+    print("⚠️ Assets directory not found - background music will not be available")
 
 # Initialize the MCP server
 mcp = FastMCP("ghost_brain")
