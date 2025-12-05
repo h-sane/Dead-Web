@@ -495,28 +495,34 @@ function makeUnkillableUI() {
     
     closeButtons.forEach(button => {
         button.addEventListener('mouseover', (e) => {
-            // Calculate random position
-            const maxX = window.innerWidth - 640;
-            const maxY = window.innerHeight - 500;
-            const randomX = Math.random() * maxX;
-            const randomY = Math.random() * maxY;
+            // Calculate random position within viewport bounds
+            const win95Window = document.querySelector('.win95-window');
+            if (!win95Window) return;
+            
+            const windowWidth = 640;  // Win95 window width
+            const windowHeight = 500; // Win95 window height
+            
+            // Ensure window stays within viewport
+            const maxX = Math.max(0, window.innerWidth - windowWidth);
+            const maxY = Math.max(0, window.innerHeight - windowHeight);
+            
+            // Random position but clamped to viewport
+            const randomX = Math.max(0, Math.min(Math.random() * maxX, maxX));
+            const randomY = Math.max(0, Math.min(Math.random() * maxY, maxY));
             
             // Move the entire window
-            const win95Window = document.querySelector('.win95-window');
-            if (win95Window) {
-                win95Window.style.transform = 'none';
-                win95Window.style.left = randomX + 'px';
-                win95Window.style.top = randomY + 'px';
-                win95Window.style.transition = 'all 0.1s ease-out';
-                
-                // Clear existing timer
-                if (resetTimer) clearTimeout(resetTimer);
-                
-                // Reset window position after 2 seconds
-                resetTimer = setTimeout(() => {
-                    resetWindowPosition();
-                }, 2000);
-            }
+            win95Window.style.transform = 'none';
+            win95Window.style.left = randomX + 'px';
+            win95Window.style.top = randomY + 'px';
+            win95Window.style.transition = 'all 0.1s ease-out';
+            
+            // Clear existing timer
+            if (resetTimer) clearTimeout(resetTimer);
+            
+            // Reset window position after 2 seconds
+            resetTimer = setTimeout(() => {
+                resetWindowPosition();
+            }, 2000);
             
             console.log('🏃 You cannot escape...');
         });
