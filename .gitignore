@@ -1,0 +1,41 @@
+# Environment variables (CRITICAL - contains API keys)
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Test files
+test_backend.py
+
+# Documentation (optional - remove if you want to commit these)
+SOLUTION_SUMMARY.md
+ARCHITECTURE_CHANGES.md
+TESTING_GUIDE.md
+VERIFICATION_CHECKLIST.md
+QUICK_FIX_SUMMARY.md
+DEBUG_GUIDE.md
+DEEP_PSYCHOSIS_UPGRADE.md
