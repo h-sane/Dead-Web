@@ -89,7 +89,7 @@ function monitorVolume() {
     }
     
     // FIXED: More responsive threshold and cooldown
-    const THRESHOLD = 40; // Lower threshold for better detection
+    const THRESHOLD = 60; // Higher threshold to reduce sensitivity
     const COOLDOWN = 3000; // 3 second cooldown between jumpscares
     const now = Date.now();
     
