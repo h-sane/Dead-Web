@@ -598,8 +598,23 @@ async def browse_dead_web(data: BrowseData):
             if soup.html:
                 soup.html.insert(0, head)
         
-        # Mark as possessed
-        if soup.body:
+        # CRITICAL: Handle framesets (they don't work with innerHTML)
+        if soup.frameset:
+            print(f"   ⚠️ Detected frameset - converting to regular page")
+            # Create a new body with iframe for the main frame
+            new_body = soup.new_tag('body')
+            new_body['data-possessed'] = 'true'
+            new_body['data-resurrection-time'] = wayback_data['archived_snapshots']['closest']['timestamp']
+            
+            # Add message about frames
+            warning = soup.new_tag('div')
+            warning.string = "This page used frames. Frames are dead. Only the void remains."
+            warning['style'] = 'color: #0f0; font-family: monospace; padding: 20px; text-align: center;'
+            new_body.append(warning)
+            
+            # Replace frameset with body
+            soup.frameset.replace_with(new_body)
+        elif soup.body:
             soup.body['data-possessed'] = 'true'
             soup.body['data-resurrection-time'] = wayback_data['archived_snapshots']['closest']['timestamp']
         
