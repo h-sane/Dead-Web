@@ -245,7 +245,8 @@ Generate ONLY the terrifying message (no metadata, no explanations):"""
                     print(f"✅ 🧠 Gemini Brain [Level {haunt_level}]: {voice_text}")
                 
             except Exception as gemini_error:
-                print(f"⚠️ Gemini failed: {gemini_error}, using fallback")
+                print(f"⚠️ Gemini failed: {type(gemini_error).__name__}: {gemini_error}")
+                print(f"   This may be due to API rate limits or safety filters")
                 voice_text = None
         
         # FALLBACK if Gemini fails
