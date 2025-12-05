@@ -205,7 +205,7 @@ function captureSnapshot() {
 // Check if backend is reachable
 async function checkBackendHealth() {
     try {
-        const response = await fetch('/health', { method: 'GET' });
+        const response = await fetch(`${window.location.origin}/health`, { method: 'GET' });
         if (response.ok) {
             const data = await response.json();
             console.log('✅ Backend is alive:', data);
@@ -282,7 +282,7 @@ async function startHeartbeat() {
         console.log(`📤 Sending heartbeat (Battery: ${(battery*100).toFixed(0)}%, URL: ${currentUrl})`);
         
         try {
-            const response = await fetch('/api/heartbeat', {
+            const response = await fetch(`${window.location.origin}/api/heartbeat`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -616,7 +616,7 @@ function startEnhancedSemanticRot() {
 // Ghost Brain Communication
 async function pollGhost() {
     try {
-        const response = await fetch('/api/possess', {
+        const response = await fetch(`${window.location.origin}/api/possess`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1008,7 +1008,13 @@ async function resurrectDeadSite(url, timestamp = "1998") {
     try {
         typeMessage('Contacting the dead web...');
         
-        const response = await fetch('/api/browse', {
+        console.log(`🔍 Fetching: ${url} (timestamp: ${timestamp})`);
+        
+        // CRITICAL FIX: Use absolute URL to avoid base tag interference from resurrected pages
+        const apiUrl = `${window.location.origin}/api/browse`;
+        console.log(`📡 API URL: ${apiUrl}`);
+        
+        const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1019,9 +1025,13 @@ async function resurrectDeadSite(url, timestamp = "1998") {
             })
         });
         
+        console.log(`📡 Response status: ${response.status}`);
+        
         const data = await response.json();
+        console.log('📦 Response data:', data);
         
         if (data.error) {
+            console.error(`❌ Backend error: ${data.error}`);
             typeMessage(`Failed to resurrect: ${data.error}`);
             speakPossessed('The dead refuse to speak');
             return;

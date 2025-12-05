@@ -425,25 +425,59 @@ async def browse_dead_web(data: BrowseData):
     target_url = data.url
     
     try:
+        print(f"🔍 Resurrection request: {target_url}")
+        
         # Query Wayback Machine API for snapshot with custom timestamp
         timestamp = data.timestamp if hasattr(data, 'timestamp') else "1998"
         # Use HTTPS to avoid mixed content errors on deployed site
         wayback_api = f"https://archive.org/wayback/available?url={target_url}&timestamp={timestamp}"
+        
+        print(f"📡 Querying Wayback API: {wayback_api}")
         response = requests.get(wayback_api, timeout=10, allow_redirects=True)
         wayback_data = response.json()
         
+        print(f"📦 Wayback response: {wayback_data}")
+        
         if not wayback_data.get('archived_snapshots') or not wayback_data['archived_snapshots'].get('closest'):
-            return {"error": "No archived version found in the void", "html": None}
+            print(f"❌ No archived version found for {target_url} at timestamp {timestamp}")
+            
+            # FALLBACK: Try without specific timestamp (get any available snapshot)
+            if timestamp != "1998":
+                print(f"🔄 Retrying without specific timestamp...")
+                wayback_api_fallback = f"https://archive.org/wayback/available?url={target_url}"
+                response_fallback = requests.get(wayback_api_fallback, timeout=10, allow_redirects=True)
+                wayback_data = response_fallback.json()
+                
+                if not wayback_data.get('archived_snapshots') or not wayback_data['archived_snapshots'].get('closest'):
+                    print(f"❌ Still no archived version found")
+                    return {"error": "No archived version found in the void", "html": None}
+                else:
+                    print(f"✅ Found snapshot without specific timestamp")
+            else:
+                return {"error": "No archived version found in the void", "html": None}
         
         snapshot_url = wayback_data['archived_snapshots']['closest']['url']
+        print(f"📸 Snapshot URL: {snapshot_url}")
+        
+        # CRITICAL FIX: Force HTTPS for Web Archive URLs to avoid mixed content errors
+        if snapshot_url.startswith('http://'):
+            snapshot_url = snapshot_url.replace('http://', 'https://', 1)
+            print(f"🔒 Upgraded to HTTPS: {snapshot_url}")
         
         # TASK 4: Fetch with redirect handling
+        print(f"⬇️ Fetching archived page...")
         archived_response = requests.get(snapshot_url, timeout=15, allow_redirects=True)
+        print(f"✅ Fetched {len(archived_response.text)} bytes")
         archived_html = archived_response.text
         
         # Extract final URL after redirects
         final_wayback_url = archived_response.url
         base_archive_url = '/'.join(final_wayback_url.split('/')[:6])
+        
+        # CRITICAL: Convert ALL HTTP URLs to HTTPS in the HTML to avoid mixed content
+        print(f"🔒 Converting all HTTP URLs to HTTPS...")
+        archived_html = archived_html.replace('http://web.archive.org/', 'https://web.archive.org/')
+        archived_html = archived_html.replace('http://archive.org/', 'https://archive.org/')
         
         # Parse with BeautifulSoup
         soup = BeautifulSoup(archived_html, 'html.parser')
@@ -456,6 +490,13 @@ async def browse_dead_web(data: BrowseData):
         for script in soup.find_all('script', src=lambda x: x and 'archive.org' in str(x)):
             script.decompose()
         
+        # UPGRADE ALL REMAINING HTTP LINKS TO HTTPS
+        for tag in soup.find_all(['img', 'link', 'script', 'iframe']):
+            for attr in ['src', 'href']:
+                if tag.has_attr(attr) and tag[attr].startswith('http://'):
+                    tag[attr] = tag[attr].replace('http://', 'https://', 1)
+                    print(f"   🔒 Upgraded {attr}: {tag[attr][:50]}...")
+        
         # ISSUE 2 FIX: DISABLE ALL HYPERLINKS (pointer-events: none)
         disable_links_style = soup.new_tag('style')
         disable_links_style.string = """
@@ -467,8 +508,9 @@ async def browse_dead_web(data: BrowseData):
         }
         """
         
-        # TASK 4: INJECT BASE TAG (Critical fix for relative URLs)
-        base_tag = soup.new_tag('base', href=final_wayback_url)
+        # TASK 4: INJECT BASE TAG (Critical fix for relative URLs) - FORCE HTTPS
+        final_wayback_url_https = final_wayback_url.replace('http://', 'https://')
+        base_tag = soup.new_tag('base', href=final_wayback_url_https)
         
         # INJECT OUR HAUNTING SCRIPTS
         haunting_script = soup.new_tag('script')
@@ -505,13 +547,31 @@ async def browse_dead_web(data: BrowseData):
             soup.body['data-possessed'] = 'true'
             soup.body['data-resurrection-time'] = wayback_data['archived_snapshots']['closest']['timestamp']
         
+        # Convert soup to string
+        final_html = str(soup)
+        
+        # FINAL CRITICAL STEP: Force ALL remaining HTTP URLs to HTTPS
+        print(f"🔒 Final HTTPS conversion pass...")
+        final_html = final_html.replace('http://web.archive.org/', 'https://web.archive.org/')
+        final_html = final_html.replace('http://archive.org/', 'https://archive.org/')
+        final_html = final_html.replace('href="http://', 'href="https://')
+        final_html = final_html.replace('src="http://', 'src="https://')
+        
+        http_count = final_html.count('http://web.archive.org/')
+        https_count = final_html.count('https://web.archive.org/')
+        print(f"   HTTP URLs remaining: {http_count}")
+        print(f"   HTTPS URLs: {https_count}")
+        
         return {
-            "html": str(soup),
+            "html": final_html,
             "snapshot_url": snapshot_url,
             "timestamp": wayback_data['archived_snapshots']['closest']['timestamp']
         }
         
     except Exception as e:
+        print(f"❌ Resurrection failed: {type(e).__name__}: {e}")
+        import traceback
+        traceback.print_exc()
         return {"error": str(e), "html": None}
 
 @mcp.tool()
