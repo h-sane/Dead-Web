@@ -560,21 +560,17 @@ async def browse_dead_web(data: BrowseData):
         setTimeout(() => console.log('%c404: Soul not found', 'color: red; font-weight: bold;'), 12000);
         """
         
-        style_tag = soup.new_tag('link', rel='stylesheet', href='style.css')
-        script_tag = soup.new_tag('script', src='script.js')
+        # DON'T inject style.css or script.js - they cause 404 errors
+        # The archived page should be self-contained
         
         # Inject into head (NO BASE TAG - prevents redirects)
         if soup.head:
             soup.head.insert(0, haunting_script)  # Navigation blocker FIRST
             soup.head.append(disable_links_style)  # CSS link disable
-            soup.head.append(style_tag)
-            soup.head.append(script_tag)
         else:
             head = soup.new_tag('head')
             head.append(haunting_script)  # Navigation blocker FIRST
             head.append(disable_links_style)  # CSS link disable
-            head.append(style_tag)
-            head.append(script_tag)
             if soup.html:
                 soup.html.insert(0, head)
         
