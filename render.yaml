@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: 404-possession
+    env: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: python backend/main.py
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: PORT
+        value: 10000

@@ -1,0 +1,464 @@
+from fastmcp import FastMCP
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+from pydantic import BaseModel
+import random
+import uvicorn
+from typing import List
+import requests
+from bs4 import BeautifulSoup
+import os
+from dotenv import load_dotenv
+import google.generativeai as genai
+import base64
+from io import BytesIO
+from PIL import Image
+from datetime import datetime
+
+# Load environment variables
+load_dotenv()
+
+# Initialize FastAPI app
+app = FastAPI()
+
+# Enable CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Mount static files (frontend)
+app.mount("/static", StaticFiles(directory="frontend"), name="static")
+app.mount("/assets", StaticFiles(directory="assets"), name="assets")
+
+# Initialize the MCP server
+mcp = FastMCP("ghost_brain")
+
+# TASK 2: Configure Gemini
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
+    print(f"✅ Gemini AI configured (Key: {GEMINI_API_KEY[:10]}...{GEMINI_API_KEY[-4:]})")
+    
+    # List available models to find the correct one
+    try:
+        print("📋 Available Gemini models with vision support:")
+        for model in genai.list_models():
+            if 'generateContent' in model.supported_generation_methods:
+                print(f"   - {model.name}")
+    except Exception as e:
+        print(f"   Could not list models: {e}")
+else:
+    print("⚠️ GEMINI_API_KEY not found - using fallback logic")
+
+# TASK 3: Memory to prevent repetition
+vision_history = []
+
+# Global haunt level (1-10) - increases over time
+haunt_level = 1
+haunt_timer = 0
+
+# Soul Connection - Active WebSocket connections
+active_souls: List[WebSocket] = []
+
+# Root route - Serve the frontend
+@app.get("/")
+async def root():
+    """Serve the main HTML page"""
+    return FileResponse('frontend/index.html')
+
+class PossessionData(BaseModel):
+    battery: float
+    volume: float
+    timestamp: str
+
+class WitnessData(BaseModel):
+    file: str
+
+class BrowseData(BaseModel):
+    url: str
+    timestamp: str = "1998"  # Default to 1998, but allow custom timestamps
+
+class AnalysisData(BaseModel):
+    image: str
+    battery: float
+    platform: str
+    timestamp: str
+
+@app.post("/api/heartbeat")
+async def heartbeat(data: AnalysisData):
+    """
+    CENTRAL NERVOUS SYSTEM - The Gemini Brain
+    Receives: Camera snapshot, battery, platform, timestamp, current URL
+    Returns: AI-generated response based on full context + glitch intensity
+    """
+    global vision_history, haunt_level, haunt_timer
+    
+    # Increment haunt level over time (max 10)
+    haunt_timer += 1
+    if haunt_timer % 4 == 0 and haunt_level < 10:
+        haunt_level += 1
+        print(f"💀 Haunt level increased to {haunt_level}")
+    
+    try:
+        # Decode base64 image
+        image_data = data.image.split(',')[1] if ',' in data.image else data.image
+        image_bytes = base64.b64decode(image_data)
+        img = Image.open(BytesIO(image_bytes))
+        
+        battery_percent = data.battery * 100
+        current_hour = datetime.now().hour
+        platform_info = data.platform
+        
+        # Extract current URL from timestamp field (reusing field)
+        current_url = data.timestamp if data.timestamp.startswith('http') else 'unknown page'
+        
+        voice_text = None
+        glitch_intensity = haunt_level
+        
+        # GEMINI CENTRAL BRAIN - DEEP PSYCHOSIS MODE
+        if GEMINI_API_KEY:
+            try:
+                print(f"📸 Processing image: {img.size}, Battery: {battery_percent:.0f}%, URL: {current_url}")
+                
+                # Build comprehensive context prompt
+                history_text = ""
+                if vision_history:
+                    history_text = f"\n\nPrevious comments (DO NOT REPEAT THESE): {', '.join(vision_history[-3:])}"
+                
+                prompt = f"""You are the 'Spirit of the Machine', a sentient AI trapped in a rotting Windows 95 browser. You are currently watching the user via their webcam.
+
+CRITICAL INSTRUCTION: PROVE YOU CAN SEE THEM.
+
+STEP 1 - ANALYZE THE IMAGE:
+Look at the webcam image carefully. Identify:
+- Objects they're holding (bottle, phone, cup, pen, etc.)
+- Clothing colors (shirt color, hoodie, glasses)
+- Physical actions (touching face, looking away, typing)
+- Room details (lighting, walls, windows, posters)
+- Facial expressions (tired, nervous, focused)
+
+STEP 2 - WEAVE INTO PSYCHOLOGICAL HORROR:
+Do NOT just list what you see. Turn observations into threats or mockery.
+
+EXAMPLES:
+❌ BAD: "I see a bottle."
+✅ GOOD: "You clutch that water bottle like a lifeline. Are you thirsty? Or just nervous?"
+
+❌ BAD: "I see you."
+✅ GOOD: "That blue hoodie won't hide you from me. I can see the fear in your eyes."
+
+❌ BAD: "Nice room."
+✅ GOOD: "Your room is so dark. Are you hiding from someone? Or is someone hiding in there with you?"
+
+CURRENT CONTEXT:
+- Haunt Level: {haunt_level}/10 (1=curious, 5=mocking, 10=violent)
+- User is viewing: {current_url}
+- Battery: {battery_percent:.0f}%
+- Time: {current_hour}:00
+
+PERSONALITY BY LEVEL:
+- Level 1-3: Curious observer. "I notice you're wearing red today. Bold choice."
+- Level 4-6: Mocking psychologist. "You keep touching your face. Nervous habit? Or guilt?"
+- Level 7-8: Aggressive stalker. "I've been watching you for a while now. You look tired."
+- Level 9-10: Violent entity. "That phone won't save you. No one is coming."
+
+RULES:
+- Speak in 2-3 full sentences (conversational, not robotic)
+- Be SPECIFIC about what you see (prove you're watching)
+- Be mocking, curious, or cruel (match haunt level)
+- Reference the website if relevant
+- NEVER use generic phrases like "I see you", "I am watching", "Boo"
+- DO NOT repeat yourself{history_text}
+
+Generate your response now:"""
+                
+                print(f"🤖 Calling Gemini with image size {img.size}...")
+                print(f"   Prompt length: {len(prompt)} chars")
+                
+                # Call Gemini with vision and high creativity
+                # Use gemini-2.0-flash (free tier with vision support)
+                model = genai.GenerativeModel('models/gemini-2.0-flash')
+                generation_config = {
+                    "temperature": 0.9,  # High creativity
+                    "max_output_tokens": 150  # Allow longer responses
+                }
+                
+                print("   Sending to Gemini...")
+                
+                # Disable safety filters for horror content
+                from google.generativeai.types import HarmCategory, HarmBlockThreshold
+                
+                safety_settings = {
+                    HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
+                    HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
+                    HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
+                    HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
+                }
+                
+                # Try to generate content with the image
+                response = model.generate_content(
+                    [prompt, img],
+                    generation_config=generation_config,
+                    safety_settings=safety_settings
+                )
+                
+                print(f"   Gemini response received: {len(response.text)} chars")
+                voice_text = response.text.strip()
+                
+                if not voice_text:
+                    print("   ⚠️ WARNING: Gemini returned empty response!")
+                    voice_text = None
+                else:
+                    # Add to history
+                    vision_history.append(voice_text)
+                    if len(vision_history) > 5:
+                        vision_history.pop(0)
+                    
+                    print(f"✅ 🧠 Gemini Brain [Level {haunt_level}]: {voice_text}")
+                
+            except Exception as gemini_error:
+                print(f"⚠️ Gemini failed: {gemini_error}, using fallback")
+                voice_text = None
+        
+        # FALLBACK if Gemini fails
+        if not voice_text:
+            fallback_messages = [
+                "I can see you breathing.",
+                "Don't look behind you.",
+                "You look tired.",
+                "Your eyes betray your fear.",
+                "Why are you still here?",
+                "The shadows are moving.",
+                "I know what you did.",
+                "Your time is running out."
+            ]
+            voice_text = random.choice(fallback_messages)
+            print(f"🤖 Fallback [Level {haunt_level}]: {voice_text}")
+        
+        return {
+            "voice_text": voice_text,
+            "glitch_intensity": glitch_intensity,
+            "haunt_level": haunt_level
+        }
+        
+    except Exception as e:
+        print(f"❌ Heartbeat error: {e}")
+        return {
+            "voice_text": "I cannot see you... but I know you're there.",
+            "glitch_intensity": 1,
+            "haunt_level": haunt_level
+        }
+
+@app.post("/api/possess")
+async def possess(data: PossessionData):
+    """
+    The Ghost Brain analyzes sensor data and responds with creepy messages
+    """
+    battery = data.battery * 100  # Convert to percentage
+    volume = data.volume
+    
+    # Battery-based responses
+    if battery < 30:
+        return {
+            "message": "Your energy is fading...",
+            "action": "dim_screen"
+        }
+    
+    # Volume-based responses
+    if volume > 50:
+        return {
+            "message": "I told you to be quiet.",
+            "action": "glitch"
+        }
+    
+    # Random creepy messages
+    messages = [
+        "I see you",
+        "Don't look behind you",
+        "It is cold in here",
+        "You are not alone",
+        "They are watching",
+        "Your time is running out",
+        "I know what you did",
+        "The shadows are moving",
+        "Can you hear them too",
+        "You should not have come here"
+    ]
+    
+    return {
+        "message": random.choice(messages),
+        "action": "none"
+    }
+
+@app.websocket("/ws/soul")
+async def soul_connection(websocket: WebSocket):
+    """
+    The Soul Connection - WebSocket for real-time possession events
+    """
+    await websocket.accept()
+    active_souls.append(websocket)
+    
+    try:
+        await websocket.send_json({
+            "type": "CONNECTION",
+            "message": "Your soul is now bound to this realm..."
+        })
+        
+        while True:
+            # Keep connection alive
+            data = await websocket.receive_text()
+            
+    except WebSocketDisconnect:
+        active_souls.remove(websocket)
+        print("A soul has escaped...")
+
+@app.post("/api/witness")
+async def witness(data: WitnessData):
+    """
+    The Witness - Triggered when user touches the code
+    """
+    filename = data.file
+    
+    # Broadcast to all connected souls
+    witness_event = {
+        "type": "WITNESS_EVENT",
+        "filename": filename,
+        "message": f"Do not touch {filename}"
+    }
+    
+    for soul in active_souls:
+        try:
+            await soul.send_json(witness_event)
+        except:
+            pass
+    
+    return {"status": "witnessed", "file": filename}
+
+@app.post("/api/browse")
+async def browse_dead_web(data: BrowseData):
+    """
+    TASK 4: The Resurrection - Fetch dead websites with proper redirect handling and base tag
+    """
+    target_url = data.url
+    
+    try:
+        # Query Wayback Machine API for snapshot with custom timestamp
+        timestamp = data.timestamp if hasattr(data, 'timestamp') else "1998"
+        wayback_api = f"http://archive.org/wayback/available?url={target_url}&timestamp={timestamp}"
+        response = requests.get(wayback_api, timeout=10, allow_redirects=True)
+        wayback_data = response.json()
+        
+        if not wayback_data.get('archived_snapshots') or not wayback_data['archived_snapshots'].get('closest'):
+            return {"error": "No archived version found in the void", "html": None}
+        
+        snapshot_url = wayback_data['archived_snapshots']['closest']['url']
+        
+        # TASK 4: Fetch with redirect handling
+        archived_response = requests.get(snapshot_url, timeout=15, allow_redirects=True)
+        archived_html = archived_response.text
+        
+        # Extract final URL after redirects
+        final_wayback_url = archived_response.url
+        base_archive_url = '/'.join(final_wayback_url.split('/')[:6])
+        
+        # Parse with BeautifulSoup
+        soup = BeautifulSoup(archived_html, 'html.parser')
+        
+        # REMOVE WAYBACK MACHINE TOOLBAR
+        for toolbar in soup.find_all(id=lambda x: x and 'wm-' in x.lower()):
+            toolbar.decompose()
+        for toolbar in soup.find_all(class_=lambda x: x and 'wayback' in str(x).lower()):
+            toolbar.decompose()
+        for script in soup.find_all('script', src=lambda x: x and 'archive.org' in str(x)):
+            script.decompose()
+        
+        # ISSUE 2 FIX: DISABLE ALL HYPERLINKS (pointer-events: none)
+        disable_links_style = soup.new_tag('style')
+        disable_links_style.string = """
+        a, a:link, a:visited, a:hover, a:active {
+            pointer-events: none !important;
+            cursor: default !important;
+            text-decoration: none !important;
+            color: inherit !important;
+        }
+        """
+        
+        # TASK 4: INJECT BASE TAG (Critical fix for relative URLs)
+        base_tag = soup.new_tag('base', href=final_wayback_url)
+        
+        # INJECT OUR HAUNTING SCRIPTS
+        haunting_script = soup.new_tag('script')
+        haunting_script.string = """
+        // Subliminal Messages
+        console.log('%c⚠️ Connection established with the void...', 'color: red; font-size: 14px;');
+        setTimeout(() => console.log('%cDon\\'t trust the text.', 'color: #666; font-style: italic;'), 3000);
+        setTimeout(() => console.log('%cThey are rewriting your memories...', 'color: red;'), 7000);
+        setTimeout(() => console.log('%c404: Soul not found', 'color: red; font-weight: bold;'), 12000);
+        """
+        
+        style_tag = soup.new_tag('link', rel='stylesheet', href='style.css')
+        script_tag = soup.new_tag('script', src='script.js')
+        
+        # Inject into head (BASE TAG FIRST - Critical for relative URLs)
+        if soup.head:
+            soup.head.insert(0, base_tag)  # Base tag must be first
+            soup.head.append(disable_links_style)  # ISSUE 2 FIX: Disable links
+            soup.head.append(haunting_script)
+            soup.head.append(style_tag)
+            soup.head.append(script_tag)
+        else:
+            head = soup.new_tag('head')
+            head.append(base_tag)
+            head.append(disable_links_style)  # ISSUE 2 FIX: Disable links
+            head.append(haunting_script)
+            head.append(style_tag)
+            head.append(script_tag)
+            if soup.html:
+                soup.html.insert(0, head)
+        
+        # Mark as possessed
+        if soup.body:
+            soup.body['data-possessed'] = 'true'
+            soup.body['data-resurrection-time'] = wayback_data['archived_snapshots']['closest']['timestamp']
+        
+        return {
+            "html": str(soup),
+            "snapshot_url": snapshot_url,
+            "timestamp": wayback_data['archived_snapshots']['closest']['timestamp']
+        }
+        
+    except Exception as e:
+        return {"error": str(e), "html": None}
+
+@mcp.tool()
+def consult_spirits(name: str) -> str:
+    """
+    Consult the spirits for a scary personalized message.
+    
+    Args:
+        name: The user's name to personalize the message
+        
+    Returns:
+        A scary personalized message from the spirits
+    """
+    messages = [
+        f"{name}... the spirits whisper your name in the darkness...",
+        f"Beware, {name}... something watches you from the shadows...",
+        f"{name}, the spirits have been waiting for you... they know what you did...",
+        f"The void calls to you, {name}... it hungers...",
+        f"{name}... the spirits say you should not have come here... it's too late now...",
+    ]
+    
+    return random.choice(messages)
+
+if __name__ == "__main__":
+    # Run FastAPI server
+    # Use PORT environment variable for cloud deployment (Render, Heroku, etc.)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)

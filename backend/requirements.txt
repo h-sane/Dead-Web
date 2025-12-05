@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+websockets
+requests
+beautifulsoup4
+pillow
+google-generativeai>=0.3.0
+python-dotenv
+fastmcp
+jinja2
+aiofiles

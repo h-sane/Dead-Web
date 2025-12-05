@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "ghost_brain": {
+      "command": "python",
+      "args": ["C:\\Users\\husai\\Desktop\\CODES\\404_POSSESSION\\backend\\main.py"],
+      "env": {
+        "PYTHONUNBUFFERED": "1"
+      }
+    }
+  }
+}

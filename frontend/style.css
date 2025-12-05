@@ -1,0 +1,605 @@
+/* TASK 1: EXACT IE3 MATCH - "BORING OFFICE" AESTHETIC */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    height: 100vh;
+    overflow: hidden;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'MS Sans Serif', 'Tahoma', sans-serif;
+}
+
+/* CRT Scanline Overlay */
+.crt-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 9999;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.15),
+        rgba(0, 0, 0, 0.15) 1px,
+        transparent 1px,
+        transparent 2px
+    );
+    animation: flicker 0.15s infinite;
+}
+
+@keyframes flicker {
+    0% { opacity: 0.95; }
+    50% { opacity: 0.98; }
+    100% { opacity: 0.95; }
+}
+
+/* TASK 3: Windows 95 Browser Window - Proper Flexbox (FIXED HEIGHT) */
+.win95-window {
+    width: 90vw;
+    max-width: 1200px;
+    height: 85vh;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    background: #C0C0C0;
+    border-top: 2px solid #FFFFFF;
+    border-left: 2px solid #FFFFFF;
+    border-right: 2px solid #000000;
+    border-bottom: 2px solid #000000;
+    box-shadow: 10px 10px 0 #000;
+    position: relative;
+    overflow: hidden;
+}
+
+/* TASK 1: Title Bar - Exact IE3 Navy Blue */
+.title-bar {
+    background: #000080;
+    color: #FFFFFF;
+    padding: 4px;
+    font-weight: bold;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+}
+
+.title-bar-text {
+    flex-grow: 1;
+}
+
+.title-bar-controls {
+    display: flex;
+    gap: 2px;
+}
+
+.title-bar-controls button {
+    width: 16px;
+    height: 14px;
+    background: #C0C0C0;
+    border: 1px outset #fff;
+    font-size: 8px;
+    cursor: pointer;
+    color: #000;
+}
+
+.title-bar-controls button:active {
+    border-style: inset;
+}
+
+/* TASK 1: Menu Bar - Flat Silver with Black Text */
+.menu-bar {
+    background: #C0C0C0;
+    padding: 2px 5px;
+    font-size: 11px;
+    flex-shrink: 0;
+    display: flex;
+    gap: 10px;
+    color: #000000;
+}
+
+.menu-bar span {
+    padding: 2px 8px;
+    cursor: pointer;
+    position: relative;
+}
+
+.menu-bar span:hover {
+    background: #000080;
+    color: #FFFFFF;
+}
+
+/* Toolbar */
+.toolbar {
+    background: #C0C0C0;
+    padding: 5px;
+    border-bottom: 1px solid #808080;
+    flex-shrink: 0;
+}
+
+.address-bar {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.address-label {
+    font-size: 11px;
+    color: #000;
+}
+
+.address-bar input {
+    flex: 1;
+    padding: 2px 4px;
+    border: 2px inset #808080;
+    background: #FFFFFF;
+    color: #000;
+    font-size: 11px;
+    font-family: 'MS Sans Serif', sans-serif;
+}
+
+/* ISSUE 2 FIX: Viewport with visible scrollbar (IE95 style) */
+.content {
+    flex: 1 1 auto;
+    min-height: 0;
+    position: relative;
+    width: 100%;
+    border: 2px inset #808080;
+    background: #FFFFFF;
+    color: #000000;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    font-family: 'Times New Roman', serif;
+    padding: 20px;
+}
+
+/* IE95 style scrollbar */
+.content::-webkit-scrollbar {
+    width: 16px;
+}
+
+.content::-webkit-scrollbar-track {
+    background: #C0C0C0;
+    border-left: 1px solid #808080;
+}
+
+.content::-webkit-scrollbar-thumb {
+    background: #C0C0C0;
+    border: 2px outset #FFFFFF;
+}
+
+.content::-webkit-scrollbar-thumb:hover {
+    background: #DFDFDF;
+}
+
+.content::-webkit-scrollbar-button {
+    background: #C0C0C0;
+    border: 2px outset #FFFFFF;
+    height: 16px;
+}
+
+.content::-webkit-scrollbar-button:vertical:decrement {
+    background: #C0C0C0 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M8 4 L4 10 L12 10 Z" fill="%23000"/></svg>') center no-repeat;
+}
+
+.content::-webkit-scrollbar-button:vertical:increment {
+    background: #C0C0C0 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M8 12 L4 6 L12 6 Z" fill="%23000"/></svg>') center no-repeat;
+}
+
+/* TASK 1: Status Bar - Silver with Black Text */
+.status-bar {
+    height: 25px;
+    flex-shrink: 0;
+    border-top: 2px solid #FFFFFF;
+    display: flex;
+    align-items: center;
+    padding-left: 5px;
+    background: #C0C0C0;
+    color: #000000;
+    font-size: 11px;
+    gap: 20px;
+}
+
+.status-bar span {
+    padding: 1px 3px;
+    border: 1px inset #808080;
+}
+
+/* Spirit Console - HIDDEN by default, only shown when needed */
+.spirit-console {
+    margin-top: 40px;
+    text-align: left;
+    background: rgba(0, 20, 0, 0.9);
+    padding: 15px;
+    border: 2px solid #0f0;
+    box-shadow: inset 0 0 20px rgba(0, 255, 0, 0.3);
+    max-width: 600px;
+    display: none;
+}
+
+.spirit-console p {
+    margin-bottom: 10px;
+    color: #0f0;
+    font-size: 14px;
+}
+
+.spirit-input {
+    width: 100%;
+    background: #000;
+    border: 1px solid #0f0;
+    color: #0f0;
+    padding: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+
+.spirit-btn {
+    background: #000;
+    color: #f00;
+    border: 2px solid #f00;
+    padding: 8px 16px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 12px;
+}
+
+.spirit-btn:hover {
+    background: #f00;
+    color: #000;
+    box-shadow: 0 0 20px #f00;
+}
+
+.spirit-message {
+    margin-top: 15px;
+    color: #f00;
+    font-size: 14px;
+    min-height: 20px;
+    word-wrap: break-word;
+}
+
+/* Content Styling - Horror elements (RESPONSIVE) */
+.content h1 {
+    font-size: 80px;
+    color: #f00;
+    text-shadow: 0 0 20px #f00, 0 0 40px #f00;
+    margin-bottom: 20px;
+    word-wrap: break-word;
+}
+
+.content h2 {
+    color: #f00;
+    font-size: 20px;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+    word-wrap: break-word;
+}
+
+.warning {
+    color: #ff0;
+    font-size: 18px;
+    margin: 20px 0;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+}
+
+.flicker {
+    color: #0f0;
+    animation: textFlicker 0.3s infinite;
+}
+
+@keyframes textFlicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.glitch {
+    animation: glitch 1s infinite;
+}
+
+@keyframes glitch {
+    0% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(-2px, -2px); }
+    60% { transform: translate(2px, 2px); }
+    80% { transform: translate(2px, -2px); }
+    100% { transform: translate(0); }
+}
+
+/* Jumpscare Effects */
+.glitch-extreme {
+    animation: extremeGlitch 0.1s infinite !important;
+}
+
+@keyframes extremeGlitch {
+    0% { transform: translate(0); filter: hue-rotate(0deg); }
+    10% { transform: translate(-10px, 10px); filter: hue-rotate(90deg); }
+    20% { transform: translate(10px, -10px); filter: hue-rotate(180deg); }
+    30% { transform: translate(-10px, -10px); filter: hue-rotate(270deg); }
+    40% { transform: translate(10px, 10px); filter: hue-rotate(360deg); }
+    50% { transform: translate(-5px, 5px); filter: invert(1); }
+    60% { transform: translate(5px, -5px); filter: invert(0); }
+    70% { transform: translate(-5px, -5px); filter: hue-rotate(180deg); }
+    80% { transform: translate(5px, 5px); filter: hue-rotate(90deg); }
+    90% { transform: translate(-2px, 2px); filter: hue-rotate(270deg); }
+    100% { transform: translate(0); filter: hue-rotate(0deg); }
+}
+
+.jumpscare-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+    font-size: 150px;
+    color: #f00;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    text-shadow: 0 0 30px #f00, 0 0 60px #f00, 0 0 90px #f00;
+    animation: screamPulse 0.2s infinite;
+    letter-spacing: 20px;
+}
+
+@keyframes screamPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+/* Boot Screen */
+#boot-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    z-index: 100000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Courier New', monospace;
+}
+
+.boot-container {
+    text-align: center;
+    color: #0f0;
+    font-size: 18px;
+    max-width: 80%;
+}
+
+.boot-logs {
+    margin-bottom: 20px;
+}
+
+#boot-text {
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px #0f0;
+    line-height: 1.6;
+}
+
+.boot-cursor {
+    display: inline-block;
+    animation: cursorBlink 1s infinite;
+    font-size: 24px;
+    margin-left: 5px;
+}
+
+@keyframes cursorBlink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+}
+
+.boot-progress-bar {
+    width: 100%;
+    height: 30px;
+    border: 2px solid #0f0;
+    background: #000;
+    margin: 20px 0;
+    display: none;
+}
+
+.boot-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: #0f0;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 20px #0f0;
+}
+
+.boot-camera {
+    display: none;
+    width: 320px;
+    height: 240px;
+    border: 2px solid #0f0;
+    margin: 20px auto;
+    filter: grayscale(1) contrast(1.5);
+    image-rendering: pixelated;
+}
+
+/* Saved Souls Dropdown */
+.menu-item-with-dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #C0C0C0;
+    border: 2px outset #fff;
+    min-width: 200px;
+    z-index: 1000;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.menu-item-with-dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+.dropdown-title {
+    background: #000080;
+    color: #FFFFFF;
+    padding: 5px 10px;
+    font-weight: bold;
+    border-bottom: 1px solid #808080;
+}
+
+.dropdown-item {
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 11px;
+    color: #000;
+}
+
+.dropdown-item:hover {
+    background: #000080;
+    color: #FFFFFF;
+}
+
+.dropdown-item.disabled {
+    color: #808080;
+    cursor: default;
+    pointer-events: none;
+}
+
+/* Address Bar Haunt */
+.address-bar input.haunted {
+    animation: addressHaunt 0.5s infinite;
+}
+
+@keyframes addressHaunt {
+    0%, 100% { background: #FFFFFF; border-color: #808080; }
+    50% { background: #ff0000; border-color: #f00; color: #fff; }
+}
+
+/* ISSUE 3 FIX: Glitch Active - Transient effect with finite animation */
+body.glitch-active {
+    filter: invert(1) hue-rotate(90deg) contrast(150%) saturate(200%);
+    animation: glitchShake 0.1s ease-in-out 3;  /* Only 3 iterations, then stops */
+    transform-origin: center center;
+}
+
+@keyframes glitchShake {
+    0% { transform: translate(0, 0) skew(0deg); }
+    25% { transform: translate(-5px, 5px) skew(2deg); }
+    50% { transform: translate(5px, -5px) skew(-2deg); }
+    75% { transform: translate(-5px, -5px) skew(1deg); }
+    100% { transform: translate(0, 0) skew(0deg); }
+}
+
+
+/* Possessed Dialog System */
+.possessed-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100000;
+    opacity: 1;
+    transition: opacity 0.2s;
+}
+
+.possessed-dialog {
+    background: #C0C0C0;
+    border-top: 2px solid #FFFFFF;
+    border-left: 2px solid #FFFFFF;
+    border-right: 2px solid #000000;
+    border-bottom: 2px solid #000000;
+    box-shadow: 5px 5px 0 #000;
+    min-width: 400px;
+    max-width: 600px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.possessed-dialog .title-bar {
+    background: #000080;
+    color: #FFFFFF;
+    padding: 4px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+}
+
+.possessed-dialog .title-bar-controls button {
+    width: 16px;
+    height: 14px;
+    background: #C0C0C0;
+    border: 1px outset #fff;
+    font-size: 8px;
+    cursor: pointer;
+    color: #000;
+}
+
+.possessed-dialog .title-bar-controls button:active {
+    border-style: inset;
+}
+
+.dialog-content {
+    padding: 20px;
+    background: #C0C0C0;
+    color: #000;
+    font-size: 11px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.dialog-content pre {
+    background: #000;
+    padding: 10px;
+    overflow-x: auto;
+}
+
+.dialog-footer {
+    padding: 10px;
+    text-align: center;
+    background: #C0C0C0;
+    border-top: 1px solid #808080;
+}
+
+.dialog-ok-btn {
+    padding: 4px 20px;
+    background: #C0C0C0;
+    border-top: 2px solid #FFFFFF;
+    border-left: 2px solid #FFFFFF;
+    border-right: 2px solid #000000;
+    border-bottom: 2px solid #000000;
+    font-size: 11px;
+    cursor: pointer;
+    min-width: 75px;
+}
+
+.dialog-ok-btn:active {
+    border-top: 2px solid #000000;
+    border-left: 2px solid #000000;
+    border-right: 2px solid #FFFFFF;
+    border-bottom: 2px solid #FFFFFF;
+}

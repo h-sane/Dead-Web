@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 POSSESSION</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="boot.js"></script>
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <!-- Boot Screen - The Calibration Ritual -->
+    <div id="boot-screen">
+        <div class="boot-container">
+            <div class="boot-logs">
+                <p id="boot-text">SYSTEM OFFLINE. CLICK TO INITIALIZE.</p>
+                <div id="boot-progress" class="boot-progress-bar">
+                    <div id="boot-progress-fill" class="boot-progress-fill"></div>
+                </div>
+                <canvas id="boot-camera" class="boot-camera"></canvas>
+            </div>
+            <div class="boot-cursor">_</div>
+        </div>
+    </div>
+    
+    <div class="crt-overlay"></div>
+    
+    <div class="win95-window" style="display: none;">
+        <div class="title-bar">
+            <div class="title-bar-text">404 POSSESSION - Internet Explorer</div>
+            <div class="title-bar-controls">
+                <button aria-label="Minimize"></button>
+                <button aria-label="Maximize"></button>
+                <button aria-label="Close">×</button>
+            </div>
+        </div>
+        
+        <div class="menu-bar">
+            <span class="menu-item-with-dropdown">
+                File
+                <div class="dropdown-menu">
+                    <div class="dropdown-item" data-action="new-window">New Window</div>
+                    <div class="dropdown-item" data-action="open">Open...</div>
+                    <div class="dropdown-item disabled">────────────</div>
+                    <div class="dropdown-item" data-action="close">Close</div>
+                    <div class="dropdown-item" data-action="exit">Exit</div>
+                </div>
+            </span>
+            <span class="menu-item-with-dropdown">
+                Edit
+                <div class="dropdown-menu">
+                    <div class="dropdown-item" data-action="copy">Copy</div>
+                    <div class="dropdown-item" data-action="paste">Paste</div>
+                    <div class="dropdown-item disabled">────────────</div>
+                    <div class="dropdown-item" data-action="select-all">Select All</div>
+                </div>
+            </span>
+            <span class="menu-item-with-dropdown">
+                View
+                <div class="dropdown-menu">
+                    <div class="dropdown-item" data-action="refresh">Refresh</div>
+                    <div class="dropdown-item" data-action="stop">Stop</div>
+                    <div class="dropdown-item disabled">────────────</div>
+                    <div class="dropdown-item" data-action="source">View Source</div>
+                    <div class="dropdown-item" data-action="full-screen">Full Screen</div>
+                </div>
+            </span>
+            <span class="menu-item-with-dropdown">
+                Go
+                <div class="dropdown-menu">
+                    <div class="dropdown-item" data-action="back">Back</div>
+                    <div class="dropdown-item" data-action="forward">Forward</div>
+                    <div class="dropdown-item" data-action="home">Home Page</div>
+                    <div class="dropdown-item disabled">────────────</div>
+                    <div class="dropdown-item" data-action="search">Search the Web</div>
+                </div>
+            </span>
+            <span class="menu-item-with-dropdown">
+                Favorites
+                <div class="dropdown-menu" id="savedSoulsMenu">
+                    <div class="dropdown-title">SAVED SOULS</div>
+                    <div class="dropdown-item" data-url="http://www.heavensgate.com" data-timestamp="19970327">💀 THE CULT</div>
+                    <div class="dropdown-item" data-url="http://www.cnn.com/US/OJ/" data-timestamp="19960101">⚖️ THE MURDER</div>
+                    <div class="dropdown-item" data-url="http://theshadowlands.net" data-timestamp="19970710">👻 THE GHOSTS</div>
+                    <div class="dropdown-item" data-url="http://www.artbell.com" data-timestamp="19970205">📻 THE VOICES</div>
+                    <div class="dropdown-item" data-url="http://www.ghostwatcher.com" data-timestamp="20010202">📹 THE CAM</div>
+                    <div class="dropdown-item disabled">────────────</div>
+                    <div class="dropdown-item" data-url="http://example.com" data-glitch="true">👁️ THE VOID</div>
+                </div>
+            </span>
+            <span class="menu-item-with-dropdown">
+                Help
+                <div class="dropdown-menu">
+                    <div class="dropdown-item" data-action="help-topics">Help Topics</div>
+                    <div class="dropdown-item disabled">────────────</div>
+                    <div class="dropdown-item" data-action="about">About Internet Explorer</div>
+                </div>
+            </span>
+        </div>
+        
+        <div class="toolbar">
+            <div class="address-bar">
+                <span class="address-label">Address:</span>
+                <input type="text" id="addressBarInput" value="http://www.404possession.com" placeholder="Enter URL...">
+            </div>
+        </div>
+        
+        <div class="content">
+            <h1 class="glitch" data-text="404">404</h1>
+            <h2>POSSESSION IN PROGRESS...</h2>
+            <p class="warning">Your soul has been claimed.</p>
+            <p class="flicker">The spirits are watching...</p>
+            
+            <div class="spirit-console">
+                <p>> Consult the spirits?</p>
+                <input type="text" id="nameInput" placeholder="Enter your name..." class="spirit-input">
+                <button id="consultBtn" class="spirit-btn">SUMMON</button>
+                <button id="testHeartbeatBtn" class="spirit-btn" style="margin-left: 10px;">TEST HEARTBEAT</button>
+                <div id="spiritMessage" class="spirit-message"></div>
+            </div>
+        </div>
+        
+        <div class="status-bar">
+            <span>Connection: POSSESSED</span>
+            <span>Status: HAUNTED</span>
+        </div>
+    </div>
+</body>
+</html>

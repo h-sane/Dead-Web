@@ -1,0 +1,8 @@
+{
+  "name": "The Witness",
+  "description": "The code watches back when you watch it",
+  "trigger": "onFileSave",
+  "filePattern": "**/*.{js,py,html,css,json}",
+  "action": "sendMessage",
+  "message": "File saved: {{filePath}}. The entity has been notified."
+}
