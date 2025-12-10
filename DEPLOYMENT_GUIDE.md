@@ -86,7 +86,7 @@ In Render dashboard:
 1. Go to **Environment** tab
 2. Add environment variable:
    - **Key**: `GEMINI_API_KEY`
-   - **Value**: `AIzaSyB7mLCFswuLHqcAOvtsJ05mRt4_QQOQhjQ`
+   - **Value**: `[YOUR_GEMINI_API_KEY_HERE]`
 
 ### Step 5: Deploy
 1. Click **"Create Web Service"**

@@ -10,7 +10,7 @@
 3. Go to **Environment** tab
 4. Find `GEMINI_API_KEY`
 5. Click **Edit**
-6. Replace with: `AIzaSyA6mPEwWjvhuQ8FbSRGuTsu20ENeWTTYjA`
+6. Replace with: `[YOUR_NEW_GEMINI_API_KEY]`
 7. Click **Save Changes**
 8. Render will auto-redeploy with the new key
 
@@ -19,7 +19,7 @@
 
 This key is now compromised. After updating Render:
 1. Go to https://aistudio.google.com/apikey
-2. Delete this key: `AIzaSyA6mPEwWjvhuQ8FbSRGuTsu20ENeWTTYjA`
+2. Delete the compromised key
 3. Generate a NEW key
 4. Update it again (but DON'T share it in chat)
 

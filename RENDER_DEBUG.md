@@ -72,7 +72,7 @@ Visit: `https://dead-web.onrender.com/health`
 In Render dashboard:
 1. Go to **Environment** tab
 2. Verify `GEMINI_API_KEY` is set
-3. Value should start with `AIzaSy...`
+3. Value should start with `AIzaSy...` (your actual key)
 
 ### 4. Check Browser Console
 Open DevTools (F12) and look for:
@@ -104,7 +104,7 @@ Open DevTools (F12) and look for:
 1. Go to Render dashboard → Environment
 2. Add variable:
    - Key: `GEMINI_API_KEY`
-   - Value: `AIzaSyB7mLCFswuLHqcAOvtsJ05mRt4_QQOQhjQ`
+   - Value: `[YOUR_GEMINI_API_KEY_HERE]`
 3. Click **"Save Changes"**
 4. Service will auto-redeploy
 
